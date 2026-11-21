@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>أكاديمية الشبح الفلسطيني PCG</title>
+  <style>
+    :root{
+      --bg:#090d16; --green:#00ff66; --blue:#38bdf8; --text:#d6e7ff; --muted:#8aa3c7;
+      --card: rgba(10, 14, 26, 0.72); --card2: rgba(6, 10, 20, 0.72);
+      --border: rgba(0, 255, 102, 0.18);
+      --shadowG: 0 0 20px rgba(0,255,102,0.35), 0 0 45px rgba(0,255,102,0.18);
+      --shadowB: 0 0 18px rgba(56,189,248,0.35), 0 0 40px rgba(56,189,248,0.18);
+      --shadowAll: 0 0 26px rgba(0,255,102,0.25), 0 0 26px rgba(56,189,248,0.18);
+      --danger:#ff4d6d; --ok:#00ff66; --radius:18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: "Tajawal","Segoe UI",Tahoma,Arial,sans-serif;
+      background: radial-gradient(1200px 700px at 20% 0%, rgba(0,255,102,0.10), transparent 55%),
+                  radial-gradient(900px 600px at 90% 20%, rgba(56,189,248,0.12), transparent 50%),
+                  radial-gradient(800px 650px at 60% 100%, rgba(0,255,102,0.08), transparent 55%),
+                  linear-gradient(180deg, #050812 0%, var(--bg) 60%, #050812 100%);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+    .grid{
+      position:fixed; inset:0; pointer-events:none;
+      background:
+        linear-gradient(transparent 0 96%, rgba(56,189,248,0.07) 100%),
+        linear-gradient(90deg, transparent 0 96%, rgba(0,255,102,0.06) 100%);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(circle at 50% 20%, rgba(0,0,0,1), rgba(0,0,0,0) 70%);
+      opacity:.6;
+    }
+    .scanlines{
+      position:fixed; inset:0; pointer-events:none;
+      background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.01) 2px, transparent 4px);
+      opacity:.25; mix-blend-mode: screen;
+    }
+    .wrap{ max-width:1100px; margin:0 auto; padding:26px 16px 50px; }
+    header{
+      display:flex; gap:14px; align-items:flex-start; justify-content:space-between;
+      padding:18px 18px; border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(10,14,26,0.82), rgba(8,12,22,0.58));
+      border: 1px solid rgba(56,189,248,0.16);
+      box-shadow: var(--shadowAll); position:relative; overflow:hidden;
+    }
+    header::before{
+      content:""; position:absolute; inset:-2px;
+      background:
+        radial-gradient(650px 180px at 10% 0%, rgba(0,255,102,0.22), transparent 55%),
+        radial-gradient(520px 160px at 80% 10%, rgba(56,189,248,0.20), transparent 55%);
+      filter: blur(2px); opacity:.95; pointer-events:none;
+    }
+    .brand{ position:relative; z-index:1; min-width: 320px; }
+    .brand h1{ margin:0 0 6px; font-size: 22px; letter-spacing: .3px; text-shadow: 0 0 16px rgba(0,255,102,0.25); }
+    .brand .sub{ margin:0; color:var(--muted); font-size:14px; line-height:1.7; }
+    .badge{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+    .pill{
+      padding:10px 12px; border-radius:999px; border:1px solid rgba(0,255,102,0.22);
+      background: rgba(0,255,102,0.07); box-shadow: var(--shadowG);
+      font-weight:700; color:#caffdd; font-size:13px; white-space:nowrap;
+    }
+    .pill.blue{ border-color: rgba(56,189,248,0.22); background: rgba(56,189,248,0.08); box-shadow: var(--shadowB); color:#d8f3ff; }
+    .content{ margin-top:16px; display:grid; grid-template-columns: 1fr; gap:14px; }
+    @media (min-width: 960px){ .content{ grid-template-columns: 1.05fr .95fr; align-items:start; } }
+    .card{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid rgba(0,255,102,0.14); border-radius: var(--radius);
+      box-shadow: 0 0 30px rgba(0,255,102,0.08); overflow:hidden;
+    }
+    .card .head{ padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(56,189,248,0.12); }
+    .card .head h2{ margin:0; font-size:14px; letter-spacing: .4px; color:#bfffdc; text-transform:uppercase; }
+    .status{ font-size:12px; color:var(--muted); display:flex; align-items:center; gap:8px; white-space:nowrap; }
+    .dot{ width:10px; height:10px; border-radius:999px; background: rgba(255,255,255,0.18); }
+    .dot.ok{ background: rgba(0,255,102,0.9); box-shadow: 0 0 16px rgba(0,255,102,0.35); }
+    .dot.bad{ background: rgba(255,77,109,0.9); box-shadow: 0 0 16px rgba(255,77,109,0.28); }
+    .card .body{ padding:16px; }
+    .field{ margin-bottom:12px; }
+    .label{ font-size:13px; color:#b6c7e2; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .hint{ font-size:12px; color: rgba(182,199,226,0.75); }
+    input[type="text"], input[type="password"], textarea{
+      width:100%; background: rgba(5, 8, 18, 0.65); border: 1px solid rgba(56,189,248,0.16);
+      border-radius: 12px; padding: 12px 12px; color: var(--text); outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    textarea{ min-height:120px; resize: vertical; line-height:1.6; }
+    input:focus, textarea:focus{ border-color: rgba(0,255,102,0.35); box-shadow: 0 0 0 3px rgba(0,255,102,0.12), 0 0 22px rgba(0,255,102,0.15); }
+    .keyWrap{ display:flex; align-items:center; gap:10px; }
+    .keyWrap .grow{ flex:1; }
+    .iconBtn{
+      border:none; cursor:pointer; width:44px; height:44px; border-radius:12px;
+      background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.18);
+      box-shadow: 0 0 18px rgba(56,189,248,0.08);
+      display:flex; align-items:center; justify-content:center; color:#cfeaff;
+      transition: transform .08s ease, border-color .15s ease, background .15s ease;
+    }
+    .iconBtn:hover{ transform: translateY(-1px); border-color: rgba(0,255,102,0.35); background: rgba(0,255,102,0.08); }
+    button{ cursor:pointer; font-family:inherit; }
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .btn{
+      padding:12px 14px; border-radius:14px; border: 1px solid rgba(0,255,102,0.20);
+      background: rgba(0,255,102,0.08); color:#d8ffe9; font-weight:800; letter-spacing:.2px;
+      box-shadow: 0 0 22px rgba(0,255,102,0.10);
+      transition: transform .08s ease, filter .15s ease, border-color .15s ease, background .15s ease;
+      display:flex; align-items:center; gap:10px; flex: 1 1 auto; justify-content:center; min-width: 190px;
+    }
+    .btn.blue{ border-color: rgba(56,189,248,0.22); background: rgba(56,189,248,0.10); color:#d7f4ff; box-shadow: 0 0 22px rgba(56,189,248,0.10); }
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.05); border-color: rgba(0,255,102,0.40); }
+    .btn.blue:hover{ border-color: rgba(56,189,248,0.42); }
+    .btn:disabled{ cursor:not-allowed; opacity:.6; transform:none; filter:none; }
+
+    /* ===== رفع الملفات (صور / ملفات مشفرة) ===== */
+    .fileRow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .fileRow input[type="file"]{ display:none; }
+    .fbtn{
+      cursor:pointer; padding:11px 14px; border-radius:12px; font-weight:800; font-size:13px;
+      border:1px dashed rgba(0,255,102,0.40); background: rgba(0,255,102,0.06); color:#caffdd;
+      transition: background .15s ease, border-color .15s ease, transform .08s ease;
+    }
+    .fbtn.blue{ border-color: rgba(56,189,248,0.45); background: rgba(56,189,248,0.07); color:#d7f4ff; }
+    .fbtn:hover{ transform: translateY(-1px); background: rgba(0,255,102,0.12); border-color: rgba(0,255,102,0.65); }
+    .fbtn.blue:hover{ background: rgba(56,189,248,0.14); border-color: rgba(56,189,248,0.70); }
+    .fname{ font-size:12px; color:var(--muted); direction:ltr; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .xBtn{
+      display:none; width:30px; height:30px; border-radius:999px; font-weight:900;
+      border:1px solid rgba(255,77,109,0.35); background: rgba(255,77,109,0.10); color:#ffd2db;
+    }
+    .thumb{ display:none; margin-top:10px; max-width:100%; max-height:160px; border-radius:12px; border:1px solid rgba(0,255,102,0.25); box-shadow: var(--shadowG); }
+
+    .resultBox{ position:relative; overflow:hidden; border-radius: var(--radius); border: 1px solid rgba(56,189,248,0.14); background: rgba(5, 8, 18, 0.55); }
+    .resultBox .top{ padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; border-bottom:1px solid rgba(56,189,248,0.12); }
+    .resultTitle{ display:flex; align-items:center; gap:10px; font-weight:900; color:#c9f9de; letter-spacing:.3px; font-size:13px; text-transform: uppercase; }
+    .resBtns{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .copyBtn{
+      padding:10px 12px; border-radius: 12px; border: 1px solid rgba(0,255,102,0.20);
+      background: rgba(0,255,102,0.08); color:#caffdd; font-weight:900;
+      transition: background .15s ease, border-color .15s ease, transform .08s ease; white-space:nowrap;
+    }
+    .copyBtn.blue{ border-color: rgba(56,189,248,0.25); background: rgba(56,189,248,0.10); color:#d7f4ff; }
+    .copyBtn.copied{ border-color: rgba(0,255,102,0.55); background: rgba(0,255,102,0.22); box-shadow: 0 0 18px rgba(0,255,102,0.20); color:#eafff1; }
+    .extSel{
+      padding:9px 8px; border-radius:12px; background: rgba(5,8,18,0.8); color:var(--text);
+      border:1px solid rgba(56,189,248,0.25); font-family:inherit; direction:ltr;
+    }
+    .resultBox textarea{ border:none; border-radius:0; background: transparent; min-height: 210px; padding: 14px; outline:none; }
+    .imgPane{ display:none; padding:14px; text-align:center; border-top:1px solid rgba(56,189,248,0.12); }
+    .imgPane img{ max-width:100%; border-radius:12px; border:1px solid rgba(0,255,102,0.25); box-shadow: var(--shadowG); }
+    .imgPane .btn{ margin-top:12px; width:100%; }
+
+    .msg{ margin-top:10px; font-size:13px; color: var(--muted); line-height:1.7; padding:10px 12px; border-radius: 14px; border:1px solid rgba(56,189,248,0.12); background: rgba(56,189,248,0.05); }
+    .msg strong{ color:#d7f4ff; }
+    .dangerText{ color: rgba(255,77,109,0.95); border-color: rgba(255,77,109,0.20); background: rgba(255,77,109,0.07); }
+    footer{ margin-top:14px; text-align:center; color: rgba(182,199,226,0.7); font-size:12px; }
+    .kbd{
+      font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:12px; padding:2px 7px; border-radius: 10px; border:1px solid rgba(56,189,248,0.20);
+      background: rgba(56,189,248,0.07); color:#d7f4ff; white-space:nowrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="grid"></div>
+  <div class="scanlines"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <h1>أكاديمية شبح السايبر الفلسطيني PCGA</h1>
+        <p class="sub">تطوير: عز الدين شبح السايبر الفلسطيني</p>
+        <p class="sub">(عبد المؤمن يزيد سلامة أبوسويرح)</p>
+      </div>
+      <div class="badge">
+        <div class="pill blue">فريق الشبح الفلسطيني (PCG)</div>
+        <div class="pill blue">غرف سرية سيبرانية</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- الإدخالات -->
+      <section class="card">
+        <div class="head">
+          <h2>غرف سرية - تشفير / فك تشفير</h2>
+          <div class="status">
+            <span id="authDot" class="dot"></span>
+            <span id="authText">أدخل مفتاحاً مصرحاً للدخول</span>
+          </div>
+        </div>
+
+        <div class="body">
+          <div class="field">
+            <div class="label"><span>مفتاح الغرفة (Passphrase)</span></div>
+            <div class="keyWrap">
+              <div class="grow">
+                <input id="keyInput" type="password" autocomplete="off" placeholder="اكتب المفتاح المصرح به..." />
+              </div>
+              <button id="eyeBtn" class="iconBtn" type="button" aria-label="إظهار/إخفاء كلمة السر" title="إظهار/إخفاء كلمة السر">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="label">
+              <span>النص (Plaintext / Ciphertext)</span>
+              <span class="hint">اختر زر “تشفير” أو “فك التشفير” حسب الحاجة</span>
+            </div>
+            <textarea id="textInput" placeholder="اكتب النص الذي تريد تشفيره… أو الصيغة المشفرة التي تريد فكها…"></textarea>
+          </div>
+
+          <!-- رفع صورة للتشفير -->
+          <div class="field">
+            <div class="label">
+              <span>🖼️ صورة للتشفير</span>
+              <span class="hint">بالجودة الأصلية 100% وبنفس مفتاح الغرفة</span>
+            </div>
+            <div class="fileRow">
+              <label class="fbtn" for="imageFile">📷 اختيار صورة</label>
+              <input type="file" id="imageFile" accept="image/*" />
+              <span class="fname" id="imageName"></span>
+              <button type="button" class="xBtn" id="imageClear" title="إزالة الصورة">✕</button>
+            </div>
+            <img id="thumb" class="thumb" alt="معاينة الصورة" />
+          </div>
+
+          <!-- رفع ملف مشفر لفك التشفير -->
+          <div class="field">
+            <div class="label">
+              <span>📁 ملف مشفر (.enc / .txt)</span>
+              <span class="hint">لفك تشفير ملف محفوظ سابقاً</span>
+            </div>
+            <div class="fileRow">
+              <label class="fbtn blue" for="encFile">📁 رفع ملف مشفر</label>
+              <input type="file" id="encFile" accept=".enc,.txt,text/plain" />
+              <span class="fname" id="encName"></span>
+            </div>
+          </div>
+
+          <div class="btnRow">
+            <button id="encryptBtn" class="btn" type="button"><span>🔒</span> تشغيل التشفير (AES)</button>
+            <button id="decryptBtn" class="btn blue" type="button"><span>🔓</span> تشغيل فك التشفير (AES)</button>
+          </div>
+
+          <div class="msg" id="messageBox">
+            <strong>ملاحظة:</strong> اذا استخدمت مفتاح غيرمصرح به او غير الذي تم التشفير به لن يتم فك النص او الصورة واذا اردت الصورة للهاتف استخدم (.enc) واذا اردت الصورة للويندوز استخدم (.txt) 
+          </div>
+        </div>
+      </section>
+
+      <!-- النتيجة -->
+      <aside class="card">
+        <div class="head">
+          <h2>النتيجة</h2>
+          <div class="status"><span class="kbd">Output</span></div>
+        </div>
+
+        <div class="body">
+          <div class="resultBox">
+            <div class="top">
+              <div class="resultTitle"><span>⚡</span><span>ناتج AES</span></div>
+              <div class="resBtns" id="resBtns">
+                <button id="copyBtn" class="copyBtn" type="button">نسخ</button>
+                <button id="downloadFileBtn" class="copyBtn blue" type="button">⬇ تحميل كملف</button>
+                <select id="extSel" class="extSel" title="صيغة الملف">
+                  <option value="enc">.enc</option>
+                  <option value="txt">.txt</option>
+                </select>
+              </div>
+            </div>
+            <textarea id="resultArea" readonly placeholder="سيظهر هنا ناتج التشفير/فك التشفير..."></textarea>
+
+            <!-- عرض الصورة بعد فك التشفير -->
+            <div class="imgPane" id="imgPane">
+              <img id="resultImg" alt="الصورة بعد فك التشفير" />
+              <button id="downloadImgBtn" class="btn" type="button"><span>⬇</span> تحميل الصورة</button>
+            </div>
+          </div>
+
+          <div class="msg" id="securityBox" style="margin-top:12px;">
+            <strong>صيغة الإخراج:</strong> عند التشفير سنعرض: <span class="kbd">كلمات غير مفهومة ولايستطيع احد معرفتها غيرك انت والمرسلة اليه</span>
+            <br />
+            <span style="color:rgba(182,199,226,0.78);">وعند فك التشفير سنقوم بقراءة هذه الصيغة تلقائياً. </span>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      فريق شبح السايبرالفلسطيني (PCGT)
+    </footer>
+  </div>
+
+  <script>
+    // ==============================
+    // المفاتيح المصرح بها (نفسها للنصوص والصور)
+    // ==============================
+    const ALLOWED_KEYS = ["farah", "yazeed77", "AMSLD", "ICGAQ", "PCG", "2009", "2008", "2030", "7744", "1177", "8080", "kali", "Abu Sweireh", "وحوح", "Abu Sabri"];
+
+    // ==============================
+    // عناصر الواجهة
+    // ==============================
+    const keyInput = document.getElementById("keyInput");
+    const textInput = document.getElementById("textInput");
+    const encryptBtn = document.getElementById("encryptBtn");
+    const decryptBtn = document.getElementById("decryptBtn");
+    const eyeBtn = document.getElementById("eyeBtn");
+    const resultArea = document.getElementById("resultArea");
+    const copyBtn = document.getElementById("copyBtn");
+    const downloadFileBtn = document.getElementById("downloadFileBtn");
+    const extSel = document.getElementById("extSel");
+    const authDot = document.getElementById("authDot");
+    const authText = document.getElementById("authText");
+    const messageBox = document.getElementById("messageBox");
+
+    const imageFile = document.getElementById("imageFile");
+    const imageName = document.getElementById("imageName");
+    const imageClear = document.getElementById("imageClear");
+    const thumb = document.getElementById("thumb");
+    const encFile = document.getElementById("encFile");
+    const encName = document.getElementById("encName");
+
+    const imgPane = document.getElementById("imgPane");
+    const resultImg = document.getElementById("resultImg");
+    const downloadImgBtn = document.getElementById("downloadImgBtn");
+    const resBtns = document.getElementById("resBtns");
+
+    let selectedImageDataUrl = null;   // الصورة المختارة بصيغة data:image/...;base64,...
+    let decryptedImageDataUrl = null;  // الصورة الناتجة عن فك التشفير
+
+    // ==============================
+    // تحويلات Base64 / نصوص
+    // ==============================
+    function bytesToBase64(bytes) {
+      let binary = "";
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode.apply(null, chunk);
+      }
+      return btoa(binary);
+    }
+
+    function base64ToBytes(base64) {
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes;
+    }
+
+    function strToBytes(str) { return new TextEncoder().encode(str); }
+    function bytesToStr(bytes) { return new TextDecoder().decode(bytes); }
+
+    // ==============================
+    // WebCrypto: مفتاح AES-GCM من كلمة المرور (PBKDF2)
+    // ==============================
+    async function deriveAesKeyFromPassphrase(passphrase, saltBytes) {
+      const baseKey = await crypto.subtle.importKey(
+        "raw", strToBytes(passphrase), { name: "PBKDF2" }, false, ["deriveKey"]
+      );
+      return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: saltBytes, iterations: 210000, hash: "SHA-256" },
+        baseKey,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+      );
+    }
+
+    // دالة التشفير المشتركة (نصوص + صور) -> Base64(salt).Base64(iv).Base64(ciphertext)
+    async function aesEncryptString(plaintext, passphrase) {
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const aesKey = await deriveAesKeyFromPassphrase(passphrase, salt);
+      const buf = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, aesKey, strToBytes(plaintext));
+      return [bytesToBase64(salt), bytesToBase64(iv), bytesToBase64(new Uint8Array(buf))].join(".");
+    }
+
+    // دالة فك التشفير المشتركة (تفشل بالكامل إذا كان المفتاح خاطئاً)
+    async function aesDecryptString(payload, passphrase) {
+      const parts = payload.trim().split(".");
+      if (parts.length !== 3) { throw new Error("BAD_FORMAT"); }
+      const salt = base64ToBytes(parts[0]);
+      const iv = base64ToBytes(parts[1]);
+      const ciphertext = base64ToBytes(parts[2]);
+      const aesKey = await deriveAesKeyFromPassphrase(passphrase, salt);
+      const buf = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, aesKey, ciphertext);
+      return bytesToStr(new Uint8Array(buf));
+    }
+
+    // ==============================
+    // التحقق من المفتاح المصرح
+    // ==============================
+    function validateKey() {
+      const key = (keyInput.value || "").trim();
+      const isAllowed = ALLOWED_KEYS.includes(key);
+
+      if (isAllowed) {
+        authDot.classList.remove("bad");
+        authDot.classList.add("ok");
+        authText.textContent = "تم التحقق: مفتاح مصرح ✅";
+        messageBox.classList.remove("dangerText");
+      } else {
+        authDot.classList.remove("ok");
+        authDot.classList.add("bad");
+        authText.textContent = key.length === 0 ? "أدخل مفتاحاً مصرحاً للدخول" : "مرفوض: مفتاح غير مصرح ❌";
+        if (key.length > 0) {
+          messageBox.classList.add("dangerText");
+          messageBox.innerHTML = "<strong>عذراً، هذا المفتاح غير مصرح له بدخول الغرف السرية!</strong>";
+        } else {
+          messageBox.classList.remove("dangerText");
+          messageBox.innerHTML = "<strong>ملاحظة:</strong> اذا استخدمت مفتاح غير مصرح به  او غير الذي تم التشفير به لن يتم فك النص أو الصورة";
+        }
+      }
+      return isAllowed;
+    }
+
+    // فحص مشترك قبل أي عملية: يرجع المفتاح أو null
+    function requireKey() {
+      const key = (keyInput.value || "").trim();
+      if (key.length === 0) {
+        alert("⚠️ الرجاء إدخال مفتاح الغرفة (كلمة السر) أولاً.");
+        keyInput.focus();
+        validateKey();
+        return null;
+      }
+      if (!validateKey()) {
+        alert("عذراً، هذا المفتاح غير مصرح له بدخول الغرف السرية!");
+        return null;
+      }
+      return key;
+    }
+
+    // ==============================
+    // إدارة عرض الصورة / النص في النتيجة
+    // ==============================
+    function showImageResult(dataUrl) {
+      decryptedImageDataUrl = dataUrl;
+      resultImg.src = dataUrl;
+      imgPane.style.display = "block";
+      resBtns.style.display = "none";
+      resultArea.style.display = "none";
+    }
+
+    function showTextResult(text) {
+      decryptedImageDataUrl = null;
+      resultImg.removeAttribute("src");
+      imgPane.style.display = "none";
+      resBtns.style.display = "flex";
+      resultArea.style.display = "block";
+      resultArea.value = text;
+    }
+
+    function hideResultImageOnly() {
+      decryptedImageDataUrl = null;
+      resultImg.removeAttribute("src");
+      imgPane.style.display = "none";
+      resBtns.style.display = "flex";
+      resultArea.style.display = "block";
+    }
+
+    // ==============================
+    // التشفير (نص أو صورة)
+    // ==============================
+    async function encryptText() {
+      const passphrase = requireKey();
+      if (!passphrase) { return; }
+
+      let plaintext;
+      let isImage = false;
+
+      if (selectedImageDataUrl) {
+        plaintext = selectedImageDataUrl;   // الصورة كاملة بدون أي ضغط
+        isImage = true;
+      } else {
+        plaintext = textInput.value;
+        if (!plaintext || plaintext.trim().length === 0) {
+          alert("الرجاء إدخال نص للتشفير أو اختيار صورة.");
+          return;
+        }
+      }
+
+      try {
+        const payload = await aesEncryptString(plaintext, passphrase);
+        showTextResult(payload);
+        if (isImage) {
+          messageBox.classList.remove("dangerText");
+          messageBox.innerHTML = "<strong>✅ تم تشفير الصورة بجودتها الأصلية.</strong> احفظ الناتج عبر زر “تحميل كملف”.";
+        }
+      } catch (err) {
+        alert("فشل التشفير. حاول مرة أخرى.");
+      }
+    }
+
+    // ==============================
+    // فك التشفير (نص أو صورة)
+    // ==============================
+    async function decryptText() {
+      const passphrase = requireKey();
+      if (!passphrase) { return; }
+
+      const payload = textInput.value.trim();
+      if (!payload || payload.length === 0) {
+        alert("الرجاء لصق/إدخال النص المشفر أو رفع ملف مشفر.");
+        return;
+      }
+
+      if (payload.split(".").length !== 3) {
+        alert("صيغة النص المشفر غير صحيحة. تأكد أنها بالشكل: Base64(salt).Base64(iv).Base64(ciphertext)");
+        return;
+      }
+
+      try {
+        const plaintext = await aesDecryptString(payload, passphrase);
+        if (plaintext.startsWith("data:image/")) {
+          showImageResult(plaintext);
+        } else {
+          showTextResult(plaintext);
+        }
+      } catch (err) {
+        // مفتاح خاطئ أو بيانات تالفة: لا تُعرض أي صورة ولا نص
+        hideResultImageOnly();
+        resultArea.value = "";
+        alert("فشل فك التشفير. تأكد من المفتاح وصحة النص المشفر.");
+      }
+    }
+
+    // ==============================
+    // قراءة الملفات
+    // ==============================
+    function readAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = () => reject(r.error);
+        r.readAsDataURL(file);
+      });
+    }
+
+    function readAsText(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = () => reject(r.error);
+        r.readAsText(file);
+      });
+    }
+
+    function clearSelectedImage() {
+      selectedImageDataUrl = null;
+      imageFile.value = "";
+      imageName.textContent = "";
+      imageClear.style.display = "none";
+      thumb.style.display = "none";
+      thumb.removeAttribute("src");
+    }
+
+    imageFile.addEventListener("change", async () => {
+      const f = imageFile.files[0];
+      if (!f) { clearSelectedImage(); return; }
+      if (!f.type.startsWith("image/")) {
+        alert("الرجاء اختيار ملف صورة فقط.");
+        clearSelectedImage();
+        return;
+      }
+      try {
+        selectedImageDataUrl = await readAsDataURL(f);
+        imageName.textContent = f.name;
+        imageClear.style.display = "inline-block";
+        thumb.src = selectedImageDataUrl;
+        thumb.style.display = "block";
+      } catch (err) {
+        alert("تعذر قراءة الصورة.");
+        clearSelectedImage();
+      }
+    });
+
+    imageClear.addEventListener("click", clearSelectedImage);
+
+    encFile.addEventListener("change", async () => {
+      const f = encFile.files[0];
+      if (!f) { return; }
+      try {
+        textInput.value = (await readAsText(f)).trim();
+        encName.textContent = f.name;
+        clearSelectedImage();
+        messageBox.classList.remove("dangerText");
+        messageBox.innerHTML = "<strong>تم تحميل الملف المشفر.</strong> أدخل مفتاح الغرفة واضغط “تشغيل فك التشفير”.";
+      } catch (err) {
+        alert("تعذر قراءة الملف.");
+      }
+      encFile.value = "";
+    });
+
+    // ==============================
+    // التنزيل
+    // ==============================
+    function saveHref(href, filename) {
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    downloadFileBtn.addEventListener("click", () => {
+      const value = resultArea.value;
+      if (!value || value.trim().length === 0) {
+        alert("لا توجد نتيجة للتحميل.");
+        return;
+      }
+      const blob = new Blob([value], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      saveHref(url, "pcg-encrypted." + extSel.value);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    });
+
+    downloadImgBtn.addEventListener("click", () => {
+      if (!decryptedImageDataUrl) { return; }
+      const mime = decryptedImageDataUrl.slice(5, decryptedImageDataUrl.indexOf(";"));
+      let ext = mime.split("/")[1] || "png";
+      if (ext === "jpeg") { ext = "jpg"; }
+      if (ext.indexOf("svg") === 0) { ext = "svg"; }
+      saveHref(decryptedImageDataUrl, "pcg-image." + ext);
+    });
+
+    // ==============================
+    // زر النسخ
+    // ==============================
+    async function copyResult() {
+      const value = resultArea.value;
+      if (!value || value.trim().length === 0) {
+        alert("لا توجد نتيجة للنسخ.");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(value);
+        const oldText = copyBtn.textContent;
+        copyBtn.textContent = "تم النسخ ✓";
+        copyBtn.classList.add("copied");
+        setTimeout(() => {
+          copyBtn.textContent = oldText;
+          copyBtn.classList.remove("copied");
+        }, 1200);
+      } catch (err) {
+        resultArea.select();
+        document.execCommand("copy");
+      }
+    }
+
+    // ==============================
+    // زر العين
+    // ==============================
+    let isEyeOpen = false;
+    eyeBtn.addEventListener("click", () => {
+      isEyeOpen = !isEyeOpen;
+      keyInput.type = isEyeOpen ? "text" : "password";
+    });
+
+    // ==============================
+    // ربط الأزرار
+    // ==============================
+    async function runBusy(fn) {
+      encryptBtn.disabled = true;
+      decryptBtn.disabled = true;
+      try {
+        await fn();
+      } finally {
+        encryptBtn.disabled = false;
+        decryptBtn.disabled = false;
+      }
+    }
+
+    encryptBtn.addEventListener("click", () => runBusy(encryptText));
+    decryptBtn.addEventListener("click", () => runBusy(decryptText));
+    copyBtn.addEventListener("click", copyResult);
+    keyInput.addEventListener("input", () => { validateKey(); });
+
+    // بدء الحالة
+    authDot.classList.remove("ok");
+    authDot.classList.remove("bad");
+  </script>
+</body>
+</html>
